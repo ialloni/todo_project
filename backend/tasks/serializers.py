@@ -20,5 +20,6 @@ class TaskSerializer(serializers.ModelSerializer):
     def update(self, instance: Task, validated_data: dict) -> Task:
         instance.content = validated_data.get('content', instance.content)
         instance.category = validated_data.get('category', instance.category)
+        instance.due_time = validated_data.get('due_time', instance.due_time)
         instance.save()
         return instance
