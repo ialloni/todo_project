@@ -1,0 +1,49 @@
+version: '1.0'
+
+services:
+  backend:
+    build: ./backend
+    command: "sh /app/scripts/start_server.sh"
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=todo_postgres
+      - DB_USER=ialloni
+      - DB_PASS=qwertyqwerty
+    depends_on:
+      - db
+
+  bot:
+    build: ./telegram
+    depends_on:
+      - backend
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=ialloni
+      - POSTGRES_PASSWORD=qwertyqwerty
+      - POSTGRES_DB=todo_postgres
+
+  redis:
+    image: redis
+
+  worker:
+    build: ./telegram
+
+    command: celery -A celery_conf worker --loglevel=INFO
+
+    depends_on:
+      - redis
+      - backend
+
+  beat:
+    build: ./telegram
+
+    command: celery -A celery_conf beat --loglevel=INFO
+
+
+    depends_on:
+      - redis
+      - backend
